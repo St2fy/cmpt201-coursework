@@ -8,7 +8,11 @@ int main() {
     ssize_t characters;
 
     const int historySize = 5;
-    char** history = malloc(historySize * sizeof(char *));
+    char** history = malloc(historySize * sizeof(char *));\
+    for (int i = 0; i < historySize; i++) {
+        history[i] = malloc(1 * sizeof(char));
+        history[i][0] = '\0'; // Initialize with empty string
+    }
     int newestIndex = 0;
 
     printf("Enter input: ");
