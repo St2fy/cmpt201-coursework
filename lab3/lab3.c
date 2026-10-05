@@ -4,36 +4,46 @@
 
 int main() {
     char* buffer = NULL;
-    size_t bufferSize = 0;
-    ssize_t characters;
+    size_t bufferSize = 100;
 
     const int historySize = 5;
-    char** history = malloc(historySize * sizeof(char *));\
+    char** history = malloc(historySize * sizeof(char *));
     for (int i = 0; i < historySize; i++) {
-        history[i] = malloc(1 * sizeof(char));
+        history[i] = malloc(bufferSize * sizeof(char));
         history[i][0] = '\0'; // Initialize with empty string
     }
     int newestIndex = 0;
+    int historyCount = 0;
 
-    printf("Enter input: ");
-    while((characters = getline(&buffer, &bufferSize, stdin)) != -1) {
-        //if the input is "print"
+    buffer = malloc(bufferSize * sizeof(char));
+    while (1) {
+        printf("Enter input: ");
+        fflush(stdout);
+        if (fgets(buffer, bufferSize, stdin) == NULL) {
+            break;
+        }
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        //copy the input to the history array
+        strcpy(history[newestIndex], buffer);
+
+        newestIndex = (newestIndex + 1) % historySize;
+        if (historyCount < historySize) {
+            historyCount++;
+        }
+
         if (strcmp(buffer, "print") == 0) {
-            for (int i = 0; i < historySize; i++) { 
-                printf("%s\n", history[i]);
+            int oldestIndex = historyCount == historySize ? newestIndex : 0;
+            for (int i = 0; i < historyCount; i++) {
+                printf("%s\n", history[(oldestIndex + i) % historySize]);
             }
         }
-        //if the replace the 5th oldest enty 
-        if (newestIndex >= historySize) {
-            newestIndex = 0;
-        }
-        //copy the input to the history array
-        history[newestIndex] = realloc(history[newestIndex], (strlen(buffer) + 1) * sizeof(char));
-        strcpy(history[newestIndex], buffer);
-        newestIndex++;
     }
-    
-    
+
+    for (int i = 0; i < historySize; i++) {
+        free(history[i]);
+    }
+    free(history);
     free(buffer);
     return 0;
 }
